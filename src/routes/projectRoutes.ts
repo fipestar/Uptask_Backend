@@ -40,8 +40,8 @@ router.delete('/:id',
    ProjectController.deleteProject)
 
 /**Routes for tasks */
+router.param('projectId', validateProjectExists)
 router.post('/:projectId/tasks',
-     validateProjectExists,
      body('name')
         .notEmpty().withMessage('El Nombre de la Tarea es requerido'),
      body('description')
@@ -49,4 +49,23 @@ router.post('/:projectId/tasks',
       handleInputErrors,
      TaskController.createTask
 )
+router.get('/:projectId/tasks',
+      TaskController.getProjectTasks
+   )
+
+router.get('/:projectId/tasks/:taskId',
+      param('taskId').isMongoId().withMessage('El ID de la Tarea debe ser un ID de MongoDB válido'),
+      handleInputErrors,
+      TaskController.getTaskById
+   )
+router.put('/:projectId/tasks/:taskId',
+   param('taskId').isMongoId().withMessage('El ID de la Tarea debe ser un ID de MongoDB válido'),
+   body('name')
+      .notEmpty().withMessage('El Nombre de la Tarea es requerido'),
+   body('description')
+      .notEmpty().withMessage('La Descripción de la Tarea es requerida'),
+   handleInputErrors,
+   TaskController.updateTask
+)
+
 export default router;
