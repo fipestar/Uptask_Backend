@@ -68,4 +68,17 @@ router.put('/:projectId/tasks/:taskId',
    TaskController.updateTask
 )
 
+router.delete('/:projectId/tasks/:taskId',
+   param('taskId').isMongoId().withMessage('El ID de la Tarea debe ser un ID de MongoDB válido'),
+   handleInputErrors,
+   TaskController.deleteTask
+)
+
+router.post('/:projectId/tasks/:taskId/status',
+   param('taskId').isMongoId().withMessage('El ID de la Tarea debe ser un ID de MongoDB válido'),
+   body('status').notEmpty().withMessage('El estado de la tarea es requerido'),
+   handleInputErrors,
+   TaskController.updateStatus
+)
+
 export default router;

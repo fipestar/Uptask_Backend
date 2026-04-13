@@ -39,15 +39,44 @@ export class TaskController {
         }
     }
 
-    static updateTask = async(req: Request, res: Response) => {
+        static updateTask = async(req: Request, res: Response) => {
+            try {
+                const {taskId} = req.params
+                const task = await Task.findById(taskId)
+                if(!task) return res.status(404).json('Tarea no encontrada')
+                if(task.project.toString() !== req.project.id) return res.status(403).json('No tienes permiso para acceder a esta tarea')
+                task.name = req.body.name
+                task.description = req.body.description
+                await task.save()
+                res.send('Tarea actualizada correctamente');
+            } catch (error) {
+                res.status(500).json('Error al obtener la tarea');
+            }
+        }
+
+    static deleteTask = async(req: Request, res: Response) => {
+       try {
+        const {taskId} = req.params
+        const task = await Task.findById(taskId)
+        if(!task) return res.status(404).json('Tarea no encontrada')
+        req.project.tasks = req.project.tasks.filter( task => task.toString() !== taskId)
+        await Promise.allSettled([ task.deleteOne(), req.project.save()])
+        res.send('Tarea eliminada correctamente');
+       } catch (error) {
+           res.status(500).json('Error al eliminar la tarea');
+       }
+    }
+    static updateStatus = async(req: Request, res: Response) => {
         try {
-            const {taskId} = req.params
-            const task = await Task.findByIdAndUpdate(taskId, req.body)
-            if(!task) return res.status(404).json('Tarea no encontrada')
-            if(task.project.toString() !== req.project.id) return res.status(403).json('No tienes permiso para acceder a esta tarea')
-            res.send('Tarea actualizada correctamente');
+            const { taskId } = req.params;
+            const task = await Task.findById(taskId);
+            if (!task) return res.status(404).json('Tarea no encontrada');
+            const { status } = req.body;
+            task.status = status;
+            await task.save();
+            res.send('Estado de la tarea actualizado correctamente');
         } catch (error) {
-            res.status(500).json('Error al obtener la tarea');
+            res.status(500).json('Error al actualizar el estado de la tarea'); 
         }
     }
 }
