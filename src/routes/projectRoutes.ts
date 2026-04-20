@@ -3,7 +3,8 @@ import { body, param } from "express-validator";
 import { ProjectController } from "../controllers/ProjectController";
 import { handleInputErrors } from "../middleware/validation";
 import { TaskController } from "../controllers/TaskController";
-import { validateProjectExists } from "../middleware/project";
+import { ProjectExists } from "../middleware/project";
+import { TaskExists } from "../middleware/task";
 
 const router = Router();
 
@@ -40,7 +41,7 @@ router.delete('/:id',
    ProjectController.deleteProject)
 
 /**Routes for tasks */
-router.param('projectId', validateProjectExists)
+router.param('projectId', ProjectExists)
 router.post('/:projectId/tasks',
      body('name')
         .notEmpty().withMessage('El Nombre de la Tarea es requerido'),
@@ -52,6 +53,7 @@ router.post('/:projectId/tasks',
 router.get('/:projectId/tasks',
       TaskController.getProjectTasks
    )
+router.param('taskId',TaskExists)
 
 router.get('/:projectId/tasks/:taskId',
       param('taskId').isMongoId().withMessage('El ID de la Tarea debe ser un ID de MongoDB válido'),
